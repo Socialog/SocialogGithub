@@ -10,22 +10,7 @@ class Module
     public function onBootstrap($e)
     {
         $app = $e->getApplication();
-        $sm = $app->getServiceManager();
-        $sharedEventManager = $sm->get('SharedEventManager');
-
-        // Inhaken in menu
-        $sharedEventManager->attach('theme', 'menu', function($e) use ($sm) {
-			$view = $sm->get('ViewRenderer');
-			$url = $view->url('socialog-github');
-            return new Menuitem('Github', $url);
-        });
-
-        // Voor een post
-        $sharedEventManager->attach('theme', 'post.pre', function($e){
-            $post = $e->getParam('post');
-
-            return "Github: " . $post->getTitle();
-        });
+        $app->getEventManager()->attach(new Event\ThemeEvents);
     }
 
     public function getConfig()
