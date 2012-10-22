@@ -6,20 +6,10 @@ use Socialog\Controller\AbstractController;
 use Zend\View\Model\ViewModel;
 
 /**
- * Github
+ * Github Controller
  */
 class GithubController extends AbstractController
 {
-	protected $client;
-
-	public function getClient()
-	{
-		if (null == $this->client) {
-			$this->client = $this->getServiceLocator()->get('socialog_github_client');
-		}
-		return $this->client;
-	}
-	
 	/**
 	 * Overview
 	 */
@@ -28,12 +18,13 @@ class GithubController extends AbstractController
 		$sm = $this->getServiceLocator();
 		
 		$viewModel = new ViewModel;
-		$viewModel->setTemplate('github/repositories');
-		
-		$client = $sm->get('socialog_github_client');
-		$viewModel->repositories = $client->api('user')->repositories('Rovak');
-		$viewModel->user = $client->api('user')->show('Rovak');
-			
+		$viewModel->setTemplate('@theme/github/repositories.twig');
+
+        /* @var $githubMapper \SocialogGithub\Mapper\Github */
+		$githubMapper = $sm->get('socialog_github_mapper');
+		$viewModel->repositories = $githubMapper->getRepositories('rovak');
+		$viewModel->user = $githubMapper->getProfile('rovak');
+
 		return $viewModel;
 	}
 }

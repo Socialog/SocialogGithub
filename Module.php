@@ -2,22 +2,39 @@
 
 namespace SocialogGithub;
 
-use Github\Client;
 use Socialog\Theme\Menuitem;
+use Zend\Mvc\MvcEvent;
 
 class Module
-{
-    public function onBootstrap($e)
+{   
+    /**
+     * @param \Zend\Mvc\MvcEvent $e
+     */
+    public function onBootstrap(MvcEvent $e)
     {
         $app = $e->getApplication();
-        $app->getEventManager()->attach(new Event\ThemeEvents);
-    }
+        $sm = $app->getServiceManager();
+        $sharedEventManager = $sm->get('SharedEventManager');
 
+        // Hook into the menu of the theme
+        $sharedEventManager->attach('theme', 'menu', function($e) use ($sm) {
+			$view = $sm->get('ViewRenderer');
+			$url = $view->url('socialog-github');
+            return new Menuitem('Github', $url);
+        });
+    }
+    
+    /**
+     * @return array
+     */
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
     }
-
+    
+    /**
+     * @return array
+     */
     public function getAutoloaderConfig()
     {
         return array(
@@ -30,15 +47,13 @@ class Module
             ),
         );
     }
-	
+
+    /**
+     * 
+     * @return array
+     */
 	public function getServiceConfig()
 	{
-		return array(
-			'factories' => array(
-				'socialog_github_client' => function($sm) {
-					return new Client();
-				}
-			),
-		);
+		return include __DIR__ . '/config/service.config.php';
 	}
 }
